@@ -1,5 +1,7 @@
 {
-  "last_run": "2026-04-20",
+  "last_run": "2026-04-21",
   "firm_count": 269,
-  "match_count": 5973
+  "match_count": 5458,
+  "jobs_in_db": 6133,
+  "fp_report_used": null
 }
