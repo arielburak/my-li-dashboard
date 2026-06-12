@@ -1,7 +1,7 @@
 {
-  "last_run": "2026-06-10",
-  "firm_count": 302,
-  "match_count": 5649,
-  "jobs_in_db": 6310,
-  "fp_report_used": null
+  "last_run": "2026-06-12",
+  "firm_count": 324,
+  "match_count": 6063,
+  "jobs_in_db": 6529,
+  "fp_report_used": "June 9.txt"
 }
