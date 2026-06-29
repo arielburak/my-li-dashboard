@@ -1,8 +1,7 @@
 {
   "last_run": "2026-06-29",
-  "mode": "digest-new",
-  "window_days": 7,
-  "distinct_new_jobs": 206,
-  "match_count": 233,
-  "firm_count": 53
+  "mode": "reading-judged",
+  "genuine_fits": 267,
+  "jobs_with_fit": 111,
+  "jobs_no_fit": 161
 }
