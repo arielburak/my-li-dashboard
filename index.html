@@ -75,6 +75,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <button class="tbtn" id="followBtn" onclick="toggleFollow()">Follow-ups</button>
 <button class="tbtn" id="logBtn" onclick="toggleLog()">Outreach log</button>
 <button class="tbtn" onclick="downloadCsv()">Download CSV</button>
+<button class="tbtn" onclick="backupState()" title="Save your sent/skip/follow marks to a file">Backup</button>
+<button class="tbtn" onclick="document.getElementById('restoreFile').click()" title="Load marks from a backup file (e.g. on another computer)">Restore</button>
+<input type="file" id="restoreFile" accept="application/json,.json" style="display:none" onchange="restoreState(this.files[0])">
 <span id="cnt" style="margin-left:auto;color:#64748b"></span></div>
 <div class="content" id="p">
 <div id="logview" style="display:none"></div>
@@ -1112,6 +1115,8 @@ function renderLog(){const rs=records();const body=rs.map(e=>'<tr><td>'+escH(e.d
 window.downloadCsv=()=>{const rs=records();const H=['Date','Candidate','Candidate FP ID','Their firm','Role','Hiring firm','Metro','Message'];const q=x=>'"'+String(x==null?'':x).replace(/"/g,'""').replace(/\n/g,' ')+'"';const lines=[H.map(q).join(',')].concat(rs.map(e=>[e.date,e.candidateName,e.candFpid,e.candFirm,e.role,e.hiringFirm,e.metro,e.message].map(q).join(',')));const blob=new Blob([lines.join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='outreach_log_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove()};
 window.filt=q=>{const l=q.toLowerCase();document.querySelectorAll('#list .job').forEach(s=>{s.style.display=s.textContent.toLowerCase().includes(l)?'':'none'})};
 window.copyMsg=id=>{const t=document.getElementById(id);if(!t)return;t.focus();t.select();const v=t.value;const done=()=>toast('Message copied');navigator.clipboard?navigator.clipboard.writeText(v).then(done).catch(()=>{document.execCommand('copy');done()}):(document.execCommand('copy'),done())};
+window.backupState=()=>{const data={li_status:state,li_jobskip:jobState,exported:new Date().toISOString()};const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-li-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded — keep it safe')};
+window.restoreState=(file)=>{if(!file)return;const rd=new FileReader();rd.onload=e=>{try{const d=JSON.parse(e.target.result);let n=0;if(d.li_status)for(const k in d.li_status){state[k]=d.li_status[k];n++}if(d.li_jobskip)for(const k in d.li_jobskip){jobState[k]=d.li_jobskip[k]}saveLocal();saveJobs();applyAll();applyJobs();toast('Restored '+n+' marks from backup')}catch(err){toast('Could not read that backup file')}};rd.readAsText(file)};
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 applyAll();applyJobs();
 </script></body></html>
