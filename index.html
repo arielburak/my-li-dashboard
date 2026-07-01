@@ -48,6 +48,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .nofit{font-size:13px;color:#92400e}.nmwrap{margin-top:6px}
 .nm{padding:5px 0;border-top:1px dotted #eee}.nm .why{font-size:12px;color:#94a3b8}
 .hide-nofit .job.nofitj{display:none!important}
+.job.dfhide{display:none!important}
 .jbtn{font-size:11px;padding:2px 9px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;color:#64748b;margin-left:8px;vertical-align:middle;font-weight:600}
 .jbtn:hover{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
 .job.skipped{display:none}
@@ -68,10 +69,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .fp.over{background:#fee2e2;color:#991b1b}.fp.due{background:#ffedd5;color:#9a3412}.fp.up{background:#e2e8f0;color:#475569}
 </style></head><body>
 <div class="header"><h1>My LI Daily Dashboard — Genuine Fits</h1>
-<div class="sub">Reading-based matching · each candidate's bio read against the full job description · June 30, 2026</div></div>
+<div class="sub">Reading-based matching · each candidate's bio read against the full job description · July 1, 2026</div></div>
 <div class="toolbar">
 <label><input type="checkbox" id="hideNofit" onchange="document.getElementById('p').classList.toggle('hide-nofit',this.checked)"> Hide no-fit jobs</label>
 <label><input type="checkbox" id="showSkip" onchange="document.getElementById('jobsview').classList.toggle('showskip',this.checked)"> Show skipped (<span id="skipCnt">0</span>)</label>
+<label>Dates: <select id="dateFilter" onchange="filterByDate(this.value)" style="padding:3px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px;background:#fff">
+<option value="">All</option>
+<option value="today">New today</option>
+<option value="week">New this week</option>
+<option value="earlier">Before today</option>
+</select></label><span id="newCnt" style="color:#059669;font-size:12px;font-weight:600"></span>
 <button class="tbtn" id="followBtn" onclick="toggleFollow()">Follow-ups</button>
 <button class="tbtn" id="logBtn" onclick="toggleLog()">Outreach log</button>
 <button class="tbtn" onclick="downloadCsv()">Download CSV</button>
@@ -1010,9 +1017,13 @@ function renderFollow(){const fs=followups();const t=new Date();t.setHours(0,0,0
 function renderLog(){const rs=records();const body=rs.map(e=>'<tr><td>'+escH(e.date)+'</td><td>'+escH(e.candidateName)+'</td><td>'+escH(e.candFirm)+'</td><td>'+escH(e.role)+'</td><td>'+escH(e.hiringFirm)+'</td><td>'+escH(e.metro)+'</td></tr>').join('')||'<tr><td colspan="6" style="color:#94a3b8;padding:10px">Nothing offered yet — mark a candidate Sent to log it here.</td></tr>';document.getElementById('logview').innerHTML='<h2 class="logh">Outreach Log — '+rs.length+' offered</h2><table class="logt"><thead><tr><th>Date</th><th>Candidate</th><th>Their firm</th><th>Role</th><th>Offered for</th><th>Metro</th></tr></thead><tbody>'+body+'</tbody></table>'}
 window.downloadCsv=()=>{const rs=records();const H=['Date','Candidate','Candidate FP ID','Their firm','Role','Hiring firm','Metro','Message'];const q=x=>'"'+String(x==null?'':x).replace(/"/g,'""').replace(/\n/g,' ')+'"';const lines=[H.map(q).join(',')].concat(rs.map(e=>[e.date,e.candidateName,e.candFpid,e.candFirm,e.role,e.hiringFirm,e.metro,e.message].map(q).join(',')));const blob=new Blob([lines.join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='outreach_log_'+new Date().toISOString().slice(0,10)+'.csv';document.body.appendChild(a);a.click();a.remove()};
 window.filt=q=>{const l=q.toLowerCase();document.querySelectorAll('#list .job').forEach(s=>{s.style.display=s.textContent.toLowerCase().includes(l)?'':'none'})};
+function _today(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}
+function _weekAgo(){const d=new Date();d.setDate(d.getDate()-6);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+window.filterByDate=(val)=>{const t=_today(),w=_weekAgo();document.querySelectorAll('#list .job').forEach(j=>{const dt=j.dataset.dateAdded||'';let hide=false;if(val==='today')hide=(dt!==t);else if(val==='week')hide=(dt<w);else if(val==='earlier')hide=(dt>=t);j.classList.toggle('dfhide',hide)})};
+function updateNewCnt(){const t=_today();const n=[...document.querySelectorAll('#list .job')].filter(j=>(j.dataset.dateAdded||'')===t).length;const el=document.getElementById('newCnt');if(el)el.textContent=n?('● '+n+' new today'):''}
 window.copyMsg=id=>{const t=document.getElementById(id);if(!t)return;t.focus();t.select();const v=t.value;const done=()=>toast('Message copied');navigator.clipboard?navigator.clipboard.writeText(v).then(done).catch(()=>{document.execCommand('copy');done()}):(document.execCommand('copy'),done())};
 window.backupState=()=>{const data={li_status:state,li_jobskip:jobState,exported:new Date().toISOString()};const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-li-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded — keep it safe')};
 window.restoreState=(file)=>{if(!file)return;const rd=new FileReader();rd.onload=e=>{try{const d=JSON.parse(e.target.result);let n=0;if(d.li_status)for(const k in d.li_status){state[k]=d.li_status[k];n++}if(d.li_jobskip)for(const k in d.li_jobskip){jobState[k]=d.li_jobskip[k]}saveLocal();saveJobs();applyAll();applyJobs();toast('Restored '+n+' marks from backup')}catch(err){toast('Could not read that backup file')}};rd.readAsText(file)};
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
-applyAll();applyJobs();
+applyAll();applyJobs();updateNewCnt();
 </script></body></html>
