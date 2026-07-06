@@ -1,6 +1,19 @@
 [
  {
   "candFirm": "Cooley LLP",
+  "candFpid": "584604",
+  "candidateName": "Shaun Wang",
+  "date": "2026-07-02",
+  "hiringFirm": "Goodwin",
+  "message": "Hi Shaun, I'm running a search for a Life Sciences Corporate Associate for Goodwin. I think you'd be a great fit.\n\nWould you be open to a quick call to hear the details?",
+  "metro": "NYC",
+  "role": "Life Sciences Corporate Associate",
+  "status": "sent",
+  "ts": 1783028306300,
+  "uid": "l_584604_GWLS_nyc_nyc"
+ },
+ {
+  "candFirm": "Cooley LLP",
   "candFpid": "586689",
   "candidateName": "Rhea George",
   "date": "2026-07-01",
